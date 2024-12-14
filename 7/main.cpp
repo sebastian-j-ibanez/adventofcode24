@@ -33,9 +33,7 @@ std::vector<std::pair<long, std::vector<int>>> getEquations() {
 
         equations.push_back({val, numbers});
     }
-
     file.close();
-
     return equations;
 }
 
@@ -47,41 +45,41 @@ void printEquations(std::vector<std::pair<long, std::vector<int>>> equations) {
     }
 }
 
-int getEquationSum(const std::pair<long, std::vector<int>> equation) {
+long getEquationSum(const std::pair<long, std::vector<int>> equation) {
     long target = equation.first;
     std::vector<int> numbers = equation.second;
-    std::vector<char> operators{ '+', '*'};
 
-    for (int i = 1; i < numbers.size(); i++) {
+    int num_operators = numbers.size() - 1;
+    int total_combination = std::pow(2, num_operators);
+
+    for (int combination = 0; combination < total_combination; ++combination) {
         long result = numbers[0];
+        int curr_combination = combination;
 
-        for (int k = 1; k < numbers.size(); k++) {
-            for (int j = 0; j < operators.size(); j++) {
-                if (operators[j] == '+') {
-                    result += numbers[k];
-                } else if (operators[j] == '*') {
-                    result *= numbers[k];
-                }
+        for (int i = 1; i < numbers.size(); ++i) {
+            // Get current operator based on curr_combination
+            char op = (combination % 2 == 0) ? '+' : '*';
 
-                // else {
-                //     if (operators[j] == '+') {
-                //         result -= numbers[i];
-                //     } else if (operators[j] == '*') {
-                //         result /= numbers[i];
-                //     }
-                // }
+            // Bitshift curr_combination
+            curr_combination /= 2;
+
+            if (op == '+') {
+                result += numbers[i];
+            } else if (op == '*') {
+                result *= numbers[i];
             }
         }
+
         if (result == target) {
-                    return std::accumulate(numbers.begin(), numbers.end(), 0);
+            return target;
         }
     }
     return 0;
 }
 
 // Get sum of valid calibration results
-int getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations) {
-    int sum;
+long getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations) {
+    long sum = 0;
 
     for (const auto e : equations) {
         sum += getEquationSum(e);
@@ -92,7 +90,7 @@ int getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations) {
 
 int main(void) {
     auto equations = getEquations();
-    int sum = getTotalSum(equations);
+    auto sum = getTotalSum(equations);
     std::cout << "Sum: " << sum << std::endl;
     return 0;
 }
