@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <numeric>
 #include <utility>
 #include <vector>
 #include <string>
@@ -45,6 +44,36 @@ void printEquations(std::vector<std::pair<long, std::vector<int>>> equations) {
     }
 }
 
+//long getEquationSum(const std::pair<long, std::vector<int>> equation) {
+//    long target = equation.first;
+//    std::vector<int> numbers = equation.second;
+//
+//    int num_operators = numbers.size() - 1;
+//    int total_combination = std::pow(2, num_operators);
+//
+//    for (int combination = 0; combination < total_combination; ++combination) {
+//        long result = numbers[0];
+//        int curr_combination = combination;
+//
+//        for (int i = 1; i < numbers.size(); ++i) {
+//            char op = (curr_combination % 2 == 0) ? '+' : '*';
+//            curr_combination /= 2;
+//
+//            if (op == '+') {
+//                result += numbers[i];
+//            } else if (op == '*') {
+//                result *= numbers[i];
+//            }
+//        }
+//
+//        if (result == target) {
+//            return target;
+//        }
+//    }
+//    return 0;
+//}
+
+
 long getEquationSum(const std::pair<long, std::vector<int>> equation) {
     long target = equation.first;
     std::vector<int> numbers = equation.second;
@@ -57,10 +86,7 @@ long getEquationSum(const std::pair<long, std::vector<int>> equation) {
         int curr_combination = combination;
 
         for (int i = 1; i < numbers.size(); ++i) {
-            // Get current operator based on curr_combination
-            char op = (combination % 2 == 0) ? '+' : '*';
-
-            // Bitshift curr_combination
+            char op = (curr_combination % 2 == 0) ? '+' : '*';
             curr_combination /= 2;
 
             if (op == '+') {
