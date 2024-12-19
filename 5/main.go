@@ -26,8 +26,12 @@ func getUpdates() [][]int {
 	}
 
 	unformattedUpdates := strings.Split(string(contents), "\n\n")
+
+	updates = make([][]int, len(unformattedUpdates))
 	for i, unformattedUpdate := range unformattedUpdates {
-		updates[i] = append(updates[i], unformattedUpdate)
+		for _, update := range unformattedUpdate {
+			updates[i] = append(updates[i], int(update))
+		}
 	}
 
 	return updates
@@ -55,5 +59,5 @@ func middlePageSum(pageOrder []int, updates [][]int) int {
 func main() {
 	pageOrder := getPageOrder()
 	updates := getUpdates()
-	fmt.Printf("Sum of middle page numbers: %d", middlePageSum(pageOrder, updates))
+	fmt.Printf("Sum of middle page numbers: %d\n", middlePageSum(pageOrder, updates))
 }
