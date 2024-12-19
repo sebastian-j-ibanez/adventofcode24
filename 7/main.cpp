@@ -8,6 +8,8 @@
 
 const std::string FILE_NAME = "input.txt";
 
+// Read input from file
+// Expected input: <value>: <number> .. <number>
 std::vector<std::pair<long, std::vector<int>>> getEquations() {
     std::ifstream file(FILE_NAME);
     if (!file.is_open()) {
@@ -36,6 +38,7 @@ std::vector<std::pair<long, std::vector<int>>> getEquations() {
     return equations;
 }
 
+// Print equation value and numbers
 void printEquations(std::vector<std::pair<long, std::vector<int>>> equations) {
     for (const auto& [val, numbers] : equations) {
         std::cout << "Test val: " << val << " Numbers: ";
@@ -44,58 +47,25 @@ void printEquations(std::vector<std::pair<long, std::vector<int>>> equations) {
     }
 }
 
-//long getEquationSum(const std::pair<long, std::vector<int>> equation) {
-//    long target = equation.first;
-//    std::vector<int> numbers = equation.second;
-//
-//    int num_operators = numbers.size() - 1;
-//    int total_combination = std::pow(2, num_operators);
-//
-//    for (int combination = 0; combination < total_combination; ++combination) {
-//        long result = numbers[0];
-//        int curr_combination = combination;
-//
-//        for (int i = 1; i < numbers.size(); ++i) {
-//            char op = (curr_combination % 2 == 0) ? '+' : '*';
-//            curr_combination /= 2;
-//
-//            if (op == '+') {
-//                result += numbers[i];
-//            } else if (op == '*') {
-//                result *= numbers[i];
-//            }
-//        }
-//
-//        if (result == target) {
-//            return target;
-//        }
-//    }
-//    return 0;
-//}
+// Perform one set of combinations on numbers
+void performOperations(int& operation, long& result, std::vector<int> numbers) {
+    for (int i = 1; i < numbers.size(); ++i) {
+        char op = (operation % 2 == 0) ? '+' : '*';
+        operation /= 2;
 
+        if (op == '+') {
+            result += numbers[i];
+        } else if (op == '*') {
+            result *= numbers[i];
+        }
+    }
+}
 
-long getEquationSum(const std::pair<long, std::vector<int>> equation) {
-    long target = equation.first;
-    std::vector<int> numbers = equation.second;
-
-    int num_operators = numbers.size() - 1;
-    int total_combination = std::pow(2, num_operators);
-
+long checkCombinations(const std::vector<int> numbers, long target, int total_combination) {
     for (int combination = 0; combination < total_combination; ++combination) {
         long result = numbers[0];
         int curr_combination = combination;
-
-        for (int i = 1; i < numbers.size(); ++i) {
-            char op = (curr_combination % 2 == 0) ? '+' : '*';
-            curr_combination /= 2;
-
-            if (op == '+') {
-                result += numbers[i];
-            } else if (op == '*') {
-                result *= numbers[i];
-            }
-        }
-
+        performOperations(curr_combination, result, numbers);
         if (result == target) {
             return target;
         }
@@ -103,12 +73,44 @@ long getEquationSum(const std::pair<long, std::vector<int>> equation) {
     return 0;
 }
 
+// Return value of equation if valid for part 1, otherwise return 0.
+long getEquationSumPart1(const std::pair<long, std::vector<int>> equation) {
+    long target = equation.first;
+    std::vector<int> numbers = equation.second;
+
+    int num_operators = numbers.size() - 1;
+    int total_combination = std::pow(2, num_operators);
+
+    return checkCombinations(numbers, target, total_combination);
+}
+
+// Return value of equation if valid for part 2, otherwise return 0.
+long getEquationSumPart2(const std::pair<long, std::vector<int>> equation) {
+    long target = equation.first;
+    std::vector<int> numbers = equation.second;
+    int num_operators = numbers.size() - 1;
+    int total_combination = std::pow(2, num_operators);
+
+    long result = checkCombinations(numbers, target, total_combination);
+    if (result != 0) {
+        return result;
+    }
+
+    // Check if equation is valid if using '|'
+    for (int i = 0; i < numbers.size(); ++i) {
+       long  
+    }
+
+    
+    return 0;
+}
+
 // Get sum of valid calibration results
-long getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations) {
+long getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations, bool part1) {
     long sum = 0;
 
     for (const auto e : equations) {
-        sum += getEquationSum(e);
+        sum += (part1) ? getEquationSumPart1(e) : getEquationSumPart2(e);
     }
 
     return sum;
@@ -116,7 +118,7 @@ long getTotalSum(std::vector<std::pair<long, std::vector<int>>> equations) {
 
 int main(void) {
     auto equations = getEquations();
-    auto sum = getTotalSum(equations);
+    auto sum = getTotalSum(equations, true);
     std::cout << "Sum: " << sum << std::endl;
     return 0;
 }
