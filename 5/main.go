@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -27,7 +28,7 @@ func getFileData() ([][]int, map[int][]int) {
 	var pageOrder [][]int
 	for _, rule := range pageOrderLines {
 		strPages := strings.Split(rule, "|")
-		pageOrder = append(pageOrder, pageNumbersToInt(strPages))
+		pageOrder = append(pageOrder, stringSliceToInt(strPages))
 	}
 
 	rules := rulesToMap(pageOrder)
@@ -38,9 +39,35 @@ func getFileData() ([][]int, map[int][]int) {
 	updateLines = updateLines[:len(updateLines)-1]
 	for _, line := range updateLines {
 		update := strings.Split(line, ",")
-		updates = append(updates, updatesToInt(update))
+		updates = append(updates, stringSliceToInt(update))
 	}
 	return updates, rules
+}
+
+// Convert string slice to integer slice
+func stringSliceToInt(strPages []string) []int {
+	var pageNumbers []int
+	for _, strPage := range strPages {
+		number, err := strconv.Atoi(strPage)
+		if err != nil {
+			panic(err)
+		}
+
+		pageNumbers = append(pageNumbers, number)
+	}
+
+	return pageNumbers
+}
+
+// Convert 2D slice to hash map
+func rulesToMap(pageOrders [][]int) map[int][]int {
+	rules := make(map[int][]int)
+
+	for _, pageOrder := range pageOrders {
+		rules[pageOrder[0]] = append(rules[pageOrder[0]], pageOrder[1:]...)
+	}
+
+	return rules
 }
 
 // Get sum of all middle pages in valid updates.
@@ -74,31 +101,30 @@ func validUpdate(update []int, pageOrderRules map[int][]int) bool {
 	return true
 }
 
-// PART 2
 // Reorder numbers in updates to meet the page order rules.
 func fixUpdates(updates [][]int, pageOrderRules map[int][]int) [][]int {
 	var fixedUpdates [][]int
 
 	for _, update := range updates {
-		if !validUpdate(update, pageOrderRules) {
-			var prevPages []int
-			for i, page := range update {
-				for _, prevPage := range prevPages { 
-					if pageOrderRules[page] != nil &&
-						slices.Contains(pageOrderRules[page], prevPage) {
-						for j, thing := range update {
-							if thing == prevPage {
-								tmp := thing
-								update[j] = update[i]
-								update[i] = tmp
-							}
-						}
-					}
+		if validUpdate(update, pageOrderRules) {
+			continue
+		}
+		for {
+			if validUpdate(update, pageOrderRules) {
+				fixedUpdates = append(fixedUpdates, update)
+				break
+			}
+
+			for i := 1; i < len(update); i++ {
+				page := update[i]
+				if pageOrderRules[page] != nil &&
+					slices.Contains(pageOrderRules[page], update[i-1]) {
+					tmp := update[i]
+					update[i] = update[i-1]
+					update[i-1] = tmp
 				}
-				prevPages = append(prevPages, page)
 			}
 		}
-		fixedUpdates = append(fixedUpdates, update)
 	}
 
 	return fixedUpdates
